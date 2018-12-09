@@ -22,7 +22,10 @@ void *producent(void *mon)
     RandomGenerator generator(low, high);
 
     while(true){
-        monitor->addElements(generator.randomRange());
+        size_t r = generator.randomRange();
+        cout << "Trying to add "<< r <<endl;
+        monitor->addElements(r);
+        sleep(1);
     }
 }
 void *consument(void *mon)
@@ -31,7 +34,10 @@ void *consument(void *mon)
     RandomGenerator generator(low, high);
 
     while(true){
-        monitor->removeElements(generator.randomRange());
+        size_t r = generator.randomRange();
+        cout << "Trying to remove "<< r <<endl;
+        monitor->removeElements(r);
+        sleep(1);
     }
 }
 
