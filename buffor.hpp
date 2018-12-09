@@ -1,3 +1,6 @@
+#ifndef BUFFOR_HPP
+#define BUFFOR_HPP
+
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
@@ -46,7 +49,7 @@ class BufferMonitor
         pthread_cond_init(&consumers, NULL);
     }
 
-    void addElements(std::size_t numberOfElements)
+    size_t addElements(std::size_t numberOfElements)
     {
         pthread_mutex_lock(&mutex);
 
@@ -56,11 +59,14 @@ class BufferMonitor
         }
 
         buffer.addElems(numberOfElements);
+        size_t bufferSize = buffer.size();
 
         signal();
         pthread_mutex_unlock(&mutex);
+        
+        return bufferSize;
     }
-    void removeElements(std::size_t numberOfElements)
+    size_t removeElements(std::size_t numberOfElements)
     {
         pthread_mutex_lock(&mutex);
 
@@ -70,9 +76,12 @@ class BufferMonitor
         }
 
         buffer.removeElems(numberOfElements);
+        size_t bufferSize = buffer.size();
 
         signal();
         pthread_mutex_unlock(&mutex);
+
+        return bufferSize;
     }
 
   private:
@@ -111,3 +120,4 @@ class BufferMonitor
         }
     }
 };
+#endif

@@ -6,6 +6,7 @@
 #include <vector>
 #include "buffor.hpp"
 #include "RandomGenerator.hpp"
+#include "ProducerCustomer.hpp"
 using namespace std;
 
 size_t low;
@@ -16,29 +17,21 @@ void initilizeThreads(vector<pthread_t>& producers, vector<pthread_t>& consumers
 void joinAll(vector<pthread_t>& producers, vector<pthread_t>& consumers);
 
 
-void *producent(void *mon)
+void *producent(void *prod)
 {   
-    BufferMonitor* monitor = (BufferMonitor*)mon;
-    RandomGenerator generator(low, high);
+    Producer* producer = (Producer*) prod;
+    while(true)
+        producer->useBuffer();
 
-    while(true){
-        size_t r = generator.randomRange();
-        cout << "Trying to add "<< r <<endl;
-        monitor->addElements(r);
-        sleep(1);
-    }
+    delete producer;
 }
-void *consument(void *mon)
+void *consument(void *cons)
 {   
-    BufferMonitor* monitor = (BufferMonitor*)mon;
-    RandomGenerator generator(low, high);
+    Consumer* consumer = (Consumer*) cons;
+    while(true)
+        consumer->useBuffer();
 
-    while(true){
-        size_t r = generator.randomRange();
-        cout << "Trying to remove "<< r <<endl;
-        monitor->removeElements(r);
-        sleep(1);
-    }
+    delete consumer;
 }
 
 int main(int argc, char* argv[])
@@ -74,15 +67,23 @@ void readInput(size_t& buffSize, size_t& producerNumber, size_t& consumerNumber)
 }
 void initilizeThreads(vector<pthread_t>& producers, vector<pthread_t>& consumers, BufferMonitor& monitor)
 {
+    int id = 0;
     for(pthread_t& p : producers)
     {
-        pthread_create(&p, NULL, producent, (void *)(&monitor));
+        Producer* prod = new Producer(id, monitor, low, high); 
+        pthread_create(&p, NULL, producent, (void *)(prod));
+        ++id;
     }
+    id = 0;
     for(pthread_t& c : consumers)
     {
-        pthread_create(&c, NULL, consument, (void *)(&monitor));
+        Consumer* prod = new Consumer(id, monitor, low, high); 
+        pthread_create(&c, NULL, consument, (void *)(prod));
+        ++id;
     }
 }
+
+
 void joinAll(vector<pthread_t>& producers, vector<pthread_t>& consumers)
 {
     for(pthread_t& p : producers)

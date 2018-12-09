@@ -1,3 +1,5 @@
+#ifndef RANDOM_GENERATOR_HPP
+#define RANDOM_GENERATOR_HPP
 #include <random>
 #include <cstddef>
 #include <chrono>
@@ -18,3 +20,4 @@ class RandomGenerator
     std::default_random_engine generator;
     std::uniform_int_distribution<size_t> distribution;
 };
+#endif
